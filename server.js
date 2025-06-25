@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 8080;
 
 app.use(express.json());
 
-app.use("/", TaskRouter);
+app.use("/tasks", TaskRouter);
 
 const server = http.createServer(app);
 server.listen(PORT, () => {
