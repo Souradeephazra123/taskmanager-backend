@@ -76,3 +76,41 @@ Get Task by ID
 ```sh
 GET /tasks/:id
 ```
+
+Add a New Task
+
+```sh
+POST /tasks
+Content-Type: application/json
+
+{
+  "title": "New Task",
+  "completed": false // optional, defaults to false
+}
+```
+
+Update a Task
+
+```sh
+PUT /tasks/:id
+Content-Type: application/json
+
+{
+  "title": "Updated Title",      // optional
+  "completed": true              // optional
+}
+```
+
+Delete a Task
+
+```sh
+DELETE /tasks/:id
+```
+Notes
+In-memory data: All tasks are stored in memory and will be lost when the server restarts.
+Validation: The title field is required when creating a task.
+
+
+# Author
+
+Souradeep hazra
