@@ -1,5 +1,3 @@
-
-
 import Task from "../model/task.model.js";
 
 export async function getAllTasks(req, res) {
@@ -28,7 +26,7 @@ export async function getTaskById(req, res) {
 
     res
       .status(200)
-      .json({ message: "Data retrieved successfully", data: task});
+      .json({ message: "Data retrieved successfully", data: task });
   } catch (error) {
     console.error("Error retrieving task:", error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -38,7 +36,7 @@ export async function getTaskById(req, res) {
 
 export async function addTask(req, res) {
   try {
-    const { title, completed } = req.body;
+    const { title, completed, group, category } = req.body;
 
     if (!title) {
       res.status(400).json({ message: "Title is required" });
@@ -48,6 +46,8 @@ export async function addTask(req, res) {
     const newTask = new Task({
       title,
       completed: completed || false,
+      group: group || "General",
+      category: category || "later",
     });
 
     const savedTask = await newTask.save();
@@ -64,7 +64,7 @@ export async function addTask(req, res) {
 export async function updateTask(req, res) {
   try {
     const taskId = req.params.id;
-    const { title, completed } = req.body;
+    const { title, completed, group, category } = req.body;
 
     const updateData = {};
     if (title !== undefined) {
@@ -73,12 +73,17 @@ export async function updateTask(req, res) {
     if (completed !== undefined) {
       updateData.completed = completed;
     }
+    if (group !== undefined) {
+      updateData.group = group;
+    }
+    if (category !== undefined) {
+      updateData.category = category;
+    }
 
-    const updatedTask = await Task.findByIdAndUpdate(
-      taskId,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updatedTask = await Task.findByIdAndUpdate(taskId, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedTask) {
       res.status(404).json({ message: "Task not found" });
@@ -106,7 +111,9 @@ export async function deleteTask(req, res) {
       return;
     }
 
-    res.status(200).json({ message: "Task deleted successfully", data: deletedTask });
+    res
+      .status(200)
+      .json({ message: "Task deleted successfully", data: deletedTask });
   } catch (error) {
     console.error("Error deleting task:", error);
     res.status(500).json({ message: "Internal Server Error" });
