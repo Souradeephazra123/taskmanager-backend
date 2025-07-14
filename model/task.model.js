@@ -21,7 +21,7 @@ const taskSchema = new mongoose.Schema(
     category: {
       type: String,
       default: "later",
-      enum: ["urgent", "important", "later", "someday"],
+      enum: ["urgent", "later", "assigned", "completed"],
       lowercase: true,
     },
   },
