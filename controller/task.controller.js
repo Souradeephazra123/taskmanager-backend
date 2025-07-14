@@ -1,17 +1,13 @@
 
 
-//using in memory arr as database for tasks
-
-let tasks = [];
-let currentId = 1;
-
-
+import Task from "../model/task.model.js";
 
 export async function getAllTasks(req, res) {
   try {
+    const tasks = await Task.find({});
     res.status(200).json({
       message: "All Data retrieved successfully",
-      data: tasks ,
+      data: tasks,
     });
   } catch (error) {
     console.error("Error retrieving tasks:", error);
@@ -22,8 +18,8 @@ export async function getAllTasks(req, res) {
 
 export async function getTaskById(req, res) {
   try {
-    const taskId = parseInt(req.params.id, 10);
-    const task = tasks.find((t) => t.id === taskId);
+    const taskId = req.params.id;
+    const task = await Task.findById(taskId);
 
     if (!task) {
       res.status(404).json({ message: "Task not found" });
@@ -49,16 +45,15 @@ export async function addTask(req, res) {
       return;
     }
 
-    const newTask = {
-      id: currentId++,
+    const newTask = new Task({
       title,
       completed: completed || false,
-    };
+    });
 
-    tasks.push(newTask);
+    const savedTask = await newTask.save();
     res
       .status(201)
-      .json({ message: "Task added succcessfully", data: newTask });
+      .json({ message: "Task added successfully", data: savedTask });
   } catch (error) {
     console.error("Error adding task:", error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -68,26 +63,31 @@ export async function addTask(req, res) {
 
 export async function updateTask(req, res) {
   try {
-    const taskId = parseInt(req.params.id, 10);
-    const taskIndex = tasks.findIndex((t) => t.id === taskId);
+    const taskId = req.params.id;
+    const { title, completed } = req.body;
 
-    if (taskIndex === -1) {
+    const updateData = {};
+    if (title !== undefined) {
+      updateData.title = title;
+    }
+    if (completed !== undefined) {
+      updateData.completed = completed;
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedTask) {
       res.status(404).json({ message: "Task not found" });
       return;
     }
 
-    const { title, completed } = req.body;
-
-    if (title !== undefined) {
-      tasks[taskIndex].title = title;
-    }
-    if (completed !== undefined) {
-      tasks[taskIndex].completed = completed;
-    }
-
     res.status(200).json({
       message: "Task updated successfully",
-      data: tasks[taskIndex],
+      data: updatedTask,
     });
   } catch (error) {
     console.error("Error updating task:", error);
@@ -98,16 +98,15 @@ export async function updateTask(req, res) {
 
 export async function deleteTask(req, res) {
   try {
-    const taskId = parseInt(req.params.id, 10);
-    const taskIndex = tasks.findIndex((t) => t.id === taskId);
+    const taskId = req.params.id;
+    const deletedTask = await Task.findByIdAndDelete(taskId);
 
-    if (taskIndex === -1) {
+    if (!deletedTask) {
       res.status(404).json({ message: "Task not found" });
       return;
     }
 
-    tasks.splice(taskIndex, 1);
-    res.status(200).json({ message: "Task deleted successfully" });
+    res.status(200).json({ message: "Task deleted successfully", data: deletedTask });
   } catch (error) {
     console.error("Error deleting task:", error);
     res.status(500).json({ message: "Internal Server Error" });

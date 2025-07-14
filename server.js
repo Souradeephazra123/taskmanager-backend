@@ -1,6 +1,14 @@
 import http from "http";
 import express from "express";
+import dotenv from "dotenv";
+import connectDB from "./config/dbConnect.js";
 import TaskRouter from "./router/task.routes.js";
+
+dotenv.config();
+
+// Connect to MongoDB
+connectDB();
+
 const app = express();
 const PORT = process.env.PORT || 8080;
 
